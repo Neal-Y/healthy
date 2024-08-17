@@ -1,0 +1,9 @@
+.idea
+
+/data
+
+/vendor
+
+.DS_Store
+
+/uploads

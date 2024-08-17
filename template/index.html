@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>飲食健康分析</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .upload-section {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #888;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .upload-label:hover {
+            background-color: #f0f0f0;
+        }
+
+        .upload-label input {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .results {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .nutrient-values p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .chart-container {
+            position: relative;
+            margin: 20px auto;
+            width: 80%;
+            height: 300px;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        .btn {
+            background-color: #5cb85c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>飲食健康分析</h1>
+    <div class="upload-section">
+        <label for="imageUpload" class="upload-label">
+            點擊或拖曳上傳圖片
+            <input type="file" id="imageUpload" accept="image/*" onchange="uploadImage(event)">
+        </label>
+    </div>
+    <div class="loading" id="loading">分析中，請稍候...</div>
+    <div class="results" id="results">
+        <h2>分析结果</h2>
+        <div class="chart-container">
+            <canvas id="nutritionChart"></canvas>
+        </div>
+        <div class="nutrient-values">
+            <p><strong>熱量:</strong> <span id="calories">--</span> 大卡</p>
+            <p><strong>蛋白質:</strong> <span id="protein">--</span> 克</p>
+            <p><strong>纖維:</strong> <span id="fiber">--</span> 克</p>
+        </div>
+        <button class="btn" onclick="resetPage()">重新上傳</button>
+    </div>
+</div>
+
+<script>
+    function uploadImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('results').style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch('/api/upload_image', {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Ensure that the response is parsed as JSON
+            })
+            .then(data => {
+                console.log('Received response:', data);
+
+                // 解析 data.response，如果它是一个字符串
+                let responseContent;
+                if (typeof data.response === 'string') {
+                    try {
+                        responseContent = JSON.parse(data.response);
+                    } catch (e) {
+                        console.error('Failed to parse data.response as JSON:', e);
+                        alert('無法解析，請重試。');
+                        return;
+                    }
+                } else {
+                    responseContent = data.response;
+                }
+
+                // 访问正确的 JSON 结构
+                const content = responseContent.choices[0].message.content;
+
+                // 解析 content 中的 JSON 数据
+                let jsonData;
+                try {
+                    jsonData = JSON.parse(content);
+                } catch (e) {
+                    console.error('Failed to parse content as JSON:', e);
+                    alert('無法解析，請重試。');
+                    return;
+                }
+
+                // 提取热量、蛋白质和纤维
+                const calories = parseFloat(jsonData.calories.replace(/[^\d.-]/g, ''));
+                const protein = parseFloat(jsonData.protein.replace(/[^\d.-]/g, ''));
+                const fiber = parseFloat(jsonData.fiber.replace(/[^\d.-]/g, ''));
+
+                // 更新页面上的数值
+                document.getElementById('calories').textContent = calories.toFixed(2);
+                document.getElementById('protein').textContent = protein.toFixed(2);
+                document.getElementById('fiber').textContent = fiber.toFixed(2);
+
+                // 使用 Chart.js 更新图表
+                const ctx = document.getElementById('nutritionChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['熱量', '蛋白質', '纖維'],
+                        datasets: [{
+                            label: '營養成分',
+                            data: [calories, protein, fiber],
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                            borderColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+                            borderWidth: 1,
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error during upload:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('上傳失敗，请重试');
+            });
+    }
+
+    function resetPage() {
+        document.getElementById('imageUpload').value = '';
+        document.getElementById('results').style.display = 'none';
+        document.getElementById('loading').style.display = 'none';
+    }
+</script>
+</body>
+</html>

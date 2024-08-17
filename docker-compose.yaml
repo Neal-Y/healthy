@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: devops/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+  mysql:
+    image: library/mysql:8.0
+    container_name: healthy
+    ports:
+      - 3306:3306
+    volumes:
+      - ./data/mysql-80:/var/lib/mysql
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    command: [ "--bind-address=0.0.0.0", "--init-file=/docker-entrypoint-initdb.d/init.sql" ]
