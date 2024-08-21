@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	GPTApiKey string
-	IMGApiKey string
+	WebURL    string
 }
 
 var AppConfig Config
@@ -23,6 +23,6 @@ func LoadConfig() {
 
 	AppConfig = Config{
 		GPTApiKey: viper.GetString("CHATGPT_API_KEY"),
-		IMGApiKey: viper.GetString("IMGBB_API_KEY"),
+		WebURL:    viper.GetString("WEB_URL"),
 	}
 }

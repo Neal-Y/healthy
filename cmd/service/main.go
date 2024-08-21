@@ -2,6 +2,7 @@ package main
 
 import (
 	"healthy/config"
+	"healthy/infrastructure"
 	"healthy/route"
 	"log"
 )
@@ -9,10 +10,10 @@ import (
 func main() {
 	config.LoadConfig()
 
-	//dbErr := infrastructure.InitMySQL()
-	//if dbErr != nil {
-	//	log.Fatal(dbErr)
-	//}
+	dbErr := infrastructure.InitMySQL()
+	if dbErr != nil {
+		log.Fatal(dbErr)
+	}
 
 	_, err := route.InitGinServer()
 	if err != nil {

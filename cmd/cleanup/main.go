@@ -1,11 +1,9 @@
 package main
 
 import (
+	"healthy/cron"
 	"healthy/infrastructure"
-	"healthy/repository"
-	"healthy/service"
 	"log"
-	"time"
 )
 
 func main() {
@@ -14,13 +12,8 @@ func main() {
 		log.Fatal(dbErr)
 	}
 
-	fileRepo := repository.NewFileRepository(infrastructure.Db)
-	fileService := service.NewFileService(fileRepo)
-
-	err := fileService.CleanupExpiredFiles(24 * time.Hour)
+	err := cron.Cleanup()
 	if err != nil {
-		log.Fatalf("Error during cleanup: %v", err)
+		log.Fatal(err)
 	}
-
-	log.Println("Cleanup successful")
 }
