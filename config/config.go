@@ -7,8 +7,11 @@ import (
 )
 
 type Config struct {
-	GPTApiKey string
-	WebURL    string
+	GPTApiKey     string
+	WebURL        string
+	AwsDbUsername string
+	AwsDbPassword string
+	AwsDbHost     string
 }
 
 var AppConfig Config
@@ -22,7 +25,10 @@ func LoadConfig() {
 	}
 
 	AppConfig = Config{
-		GPTApiKey: viper.GetString("CHATGPT_API_KEY"),
-		WebURL:    viper.GetString("WEB_URL"),
+		GPTApiKey:     viper.GetString("CHATGPT_API_KEY"),
+		WebURL:        viper.GetString("WEB_URL"),
+		AwsDbUsername: viper.GetString("AWS_DATABASE_USERNAME"),
+		AwsDbPassword: viper.GetString("AWS_DATABASE_PASSWORD"),
+		AwsDbHost:     viper.GetString("AWS_DATABASE_HOST"),
 	}
 }
