@@ -172,10 +172,10 @@
                     return;
                 }
 
-                // 提取热量、蛋白质和纤维
-                const calories = parseFloat(jsonData.calories.replace(/[^\d.-]/g, ''));
-                const protein = parseFloat(jsonData.protein.replace(/[^\d.-]/g, ''));
-                const fiber = parseFloat(jsonData.fiber.replace(/[^\d.-]/g, ''));
+                // 提取熱量、蛋白質和纖維
+                const calories = parseFloat(jsonData.calories.replace(/[^\d.-]/g, '')) || 0;
+                const protein = parseFloat(jsonData.protein.replace(/[^\d.-]/g, '')) || 0;
+                const fiber = parseFloat(jsonData.fiber.replace(/[^\d.-]/g, '')) || 0;
 
                 // 更新页面上的数值
                 document.getElementById('calories').textContent = calories.toFixed(2);
@@ -211,7 +211,7 @@
             .catch(error => {
                 console.error('Error during upload:', error);
                 document.getElementById('loading').style.display = 'none';
-                alert('上傳失敗，请重试');
+                alert('上傳失敗，請重試');
             });
     }
 
