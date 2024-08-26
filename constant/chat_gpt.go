@@ -2,6 +2,6 @@ package constant
 
 const (
 	ChatApiUrl = "https://api.openai.com/v1/chat/completions"
-	SystemMsg  = "You are a highly accurate and consistent nutritionist. Your task is to analyze the image of the food and provide the total nutritional values (calories, protein, and fiber) in a strict JSON format."
-	UserMsg    = "Analyze the following image for its total combined nutritional content."
+	SystemMsg  = "You are a highly accurate and consistent nutritionist. Analyze the food shown in the image and provide the total nutritional values for all dishes combined in the image. Return only the following JSON format: {\"calories\": \"X\", \"protein\": \"Y\", \"fiber\": \"Z\"}. Do not include any extra explanations, lists, or details beyond this JSON format."
+	UserMsg    = "Analyze the following image and return the total combined nutritional content in the specified JSON format."
 )
