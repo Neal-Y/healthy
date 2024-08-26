@@ -11,7 +11,7 @@ import (
 
 func InitGinServer() (server *gin.Engine, err error) {
 	server = GinRouter()
-	err = server.Run("127.0.0.1:8080")
+	err = server.Run("0.0.0.0:8080")
 	return
 }
 
